@@ -1,0 +1,423 @@
+#include<iostream>
+using namespace std;
+class singly{
+private:
+
+public:
+	struct node{
+		int data;
+		node *next;
+	};
+
+	node *head;
+	singly() { 
+		head= NULL; 
+	}
+	void addAtHead(int val){
+		node * n=new node;
+		n->data=val;
+		n->next=head;
+		head=n;
+	}
+	void addAtTail(int val){
+		if(head==NULL){
+			head =new node;
+			head->data=val;
+			head->next=NULL;
+			return;
+		}
+
+		node * curr=head;
+		while(curr->next!=NULL){
+			curr=curr->next;
+		}
+		curr->next=new node;
+		curr->next->data=val;
+		curr->next->next=NULL;
+
+	}
+
+	void print(){
+		cout<<endl;
+		for(node * curr=head;curr!=NULL;curr=curr->next){
+			cout<<curr->data<<"->";
+		}
+		cout<<"NULL"<<endl;
+	}
+
+	void DeleteNode(int key){
+		node * prev=new node;
+		node * curr=head;
+
+		while(curr!=NULL && curr->data!=key){
+			prev=curr;
+			curr=curr->next;
+
+		}
+		if (curr == NULL){
+			cout<<"\nKey not found! ";
+			return;
+		}
+		if (curr == head)
+			head= head->next;
+
+		else{
+			prev->next = curr->next;
+		}
+		delete curr;
+	}
+	void printNode(int key){
+		node *curr=head;
+		while (curr!=NULL && curr->data!=key)
+			curr = curr->next;
+		if (curr == NULL)
+			cout<<"\nNot found! "<<endl;
+		else
+			cout<<"\nData of node is : "<<curr->data<<endl;
+	}
+
+
+	~singly(){
+
+		node *prev;
+		while (head!=NULL)
+		{
+			prev = head;
+			head= head->next;
+			delete prev;
+		}
+	}
+	void merge(singly*l1, singly *l2){
+		int s1=0;
+		int s2=0;
+		int s3=0;
+		node * curr1=l1->head;
+		node * curr2=l2->head;
+
+		if(curr1==NULL){
+			this->head=curr2;
+		}
+		else if(curr2==NULL){
+			this->head=curr1;
+		}
+
+		while(curr1!=NULL){
+			curr1=curr1->next;
+			s1++;
+		}
+		while(curr2!=NULL){
+			curr2=curr2->next;
+			s2++;
+		}
+		s3=s1+s2;
+		node * temp1=l1->head;
+		node * temp2=l2->head;
+		for(int i=0;i<s3;i++){
+			this->addAtTail(temp1->data);
+			temp1=temp1->next;
+			i++;
+			this->addAtTail(temp2->data);
+			temp2=temp2->next;
+			i++;
+		}
+		if(s1>s2){
+			while(temp1!=NULL){
+				this->addAtTail(temp1->data);
+				temp1=temp1->next;
+			}
+		}
+		if(s2>s1){
+			while(temp2!=NULL){
+				this->addAtTail(temp2->data);
+				temp2=temp2->next;
+			}
+		}
+	}
+
+	void reverseList(){
+		node* curr=head;
+		node* prev=NULL;
+		node * next1;
+
+		while (curr!=NULL){
+			next1 = curr->next;
+			curr->next = prev;
+			prev = curr;
+			curr = next1;
+		}
+		head=prev;
+	}
+
+	void printReverse(node * head){
+		if(head==NULL){
+			return;
+		}
+		else{
+			printReverse(head->next);
+			cout<<head->data<<", ";
+		}
+	}
+
+
+};
+class circular{
+private:	
+public:
+	struct node{
+		int data;
+		node *next;
+	};
+	node *head;
+	circular() { 
+		head= NULL; 
+	}
+	void addAtHead(int val){
+		node *n1;
+		n1=new node;
+		n1->data=val;
+		if(head==NULL){
+			head=n1;
+			n1->next=head;
+		}
+		else{
+			node * prev=head;
+
+			while(prev->next!=head){
+				prev=prev->next;
+			}
+			n1->next=head;
+			head=n1;
+			prev->next=head;
+		}
+		
+		
+	}
+	void addAtTail(int val){
+		node * temp=new node;
+		temp->data=val;
+		if(head==NULL){
+			head =temp;
+			temp->next=head;
+			return;
+		}
+
+		node * curr=head;
+
+		while(curr->next!=head){
+			curr=curr->next;
+		}
+		curr->next=temp;
+		temp->next=head;
+	}
+	void print(){
+		cout<<endl;
+		node *curr=head;
+		for(curr;curr->next!=head;curr=curr->next){
+			cout<<curr->data<<"->";
+		}
+		cout<<curr->data;
+	}
+	void DeleteNode(int key){
+		node * prev=new node;
+		node * curr=head;
+
+		while(curr->next!=head && curr->data!=key){
+			prev=curr;
+			curr=curr->next;
+
+		}
+		if (curr == NULL){
+			cout<<"\nKey not found! ";
+			return;
+		}
+		if (curr == head)
+			head= head->next;
+
+		else{
+			prev->next = curr->next;
+		}
+		delete curr;
+	}
+	void printNode(int key){
+		node *curr=head;
+		while (curr->next!=head && curr->data!=key)
+			curr = curr->next;
+		if (curr == NULL)
+			cout<<"\nNot found! "<<endl;
+		else
+			cout<<"\nData of node is : "<<curr->data<<endl;
+	}
+	~circular(){
+	
+		delete head;
+
+		/*node *prev;
+		node * temp=head;
+		while (temp->next!=head)
+		{
+			prev = temp;
+			temp= temp->next;
+			delete prev;
+
+		}
+*/
+	}
+	void mergeCircular(circular*l1, circular*l2){
+		int s1=0;
+		int s2=0;
+		int s3=0;
+		node * curr1=l1->head;
+		node * curr2=l2->head;
+
+		if(curr1==NULL){
+			this->head=curr2;
+		}
+		 if(curr2==NULL){
+			this->head=curr1;
+		}
+		while(curr1->next!=l1->head){
+			curr1=curr1->next;
+			s1++;
+		}
+		while(curr2->next!=l2->head){
+			curr2=curr2->next;
+			s2++;
+		}
+		s3=s1+s2;
+		node * temp1=l1->head;
+		node * temp2=l2->head;
+		for(int i=0;i<s3;i++){
+			this->addAtTail(temp1->data);
+			temp1=temp1->next;
+			this->addAtTail(temp2->data);
+			temp2=temp2->next;
+			i++;
+		}
+		if(s1>s2){
+			while(temp1!=l1->head){
+				this->addAtTail(temp1->data);
+				temp1=temp1->next;
+			}
+		}
+		if(s2>s1){
+			while(temp2!=l2->head){
+				this->addAtTail(temp2->data);
+				temp2=temp2->next;
+			}
+		}
+	}
+
+
+	
+};
+
+
+
+int main(){
+
+	cout<<"\n\t********************** SINGLY LINKED LIST **********************\n"<<endl;
+	cout<<"enter the no. of items for list 1 : "<<endl;
+	int s1;
+	cin>>s1;
+	singly l1;
+	cout<<"enter the elements rrespectively on each node: "<<endl;
+	int x;
+	for(int i=0;i<s1;i++){
+		cin>>x;
+		l1.addAtHead(x);
+	}
+	cout<<"list 1 : "<<endl;
+	l1.print();
+	//cout<<endl;
+
+	cout<<"enter the no. of items for list 2 : "<<endl;
+	int s2;
+	cin>>s2;
+	singly l2;
+	cout<<"enter the elements rrespectively on each node: "<<endl;
+	int x2;
+	for(int i=0;i<s2;i++){
+		cin>>x2;
+		l2.addAtHead(x2);
+	}
+	cout<<"list 2 : "<<endl;
+	l2.print();
+	cout<<endl;
+	system("CLS");
+	singly l3;
+	cout<<"list 1 : ";
+	l1.print();
+	cout<<endl;
+	cout<<"list 2 : ";
+	l2.print();
+	cout<<endl;
+	cout<<"\nmerging both lists : "<<endl;
+	l3.merge(&l1,&l2);
+	l3.print();
+	cout<<"Enter the list number to reverse :"<<endl;
+	int n;
+	cin>>n;
+	if(n==1){
+		l1.reverseList();
+		cout<<"after reversing list "<<n<<" : "<<endl;
+		l1.print();
+	}
+	else if(n==2){
+		l2.reverseList();
+		cout<<"after reversing list "<<n<<" : "<<endl;
+		l2.print();
+	}
+	else if(n==3){
+		l3.reverseList();
+		cout<<"after reversing list "<<n<<" : "<<endl;
+		l3.print();
+	}
+	system("pause>0");
+	system("CLS");
+
+	cout<<"\n\t********************** CIRCULAR LINKED LIST **********************\n"<<endl;
+	cout<<"enter the no. of items for CIRCULAR list 1 : "<<endl;
+	int sz1;
+	cin>>sz1;
+	circular c1;
+	cout<<"enter the elements respectively on each node: "<<endl;
+	int y;
+	for(int i=0;i<sz1;i++){
+		cin>>y;
+		c1.addAtTail(y);
+	}
+	//cout<<"list 1 : "<<endl;
+	//c1.print();
+	cout<<endl;
+	cout<<"enter the no. of items for CIRCULAR list 2 : "<<endl;
+	int sz2;
+	cin>>sz2;
+	circular c2;
+	cout<<"enter the elements respectively on each node: "<<endl;
+	int y2;
+	for(int i=0;i<sz2;i++){
+		cin>>y2;
+		c2.addAtTail(y2);
+	}
+	//cout<<"list 2 : "<<endl;
+	//c2.print();
+	//cout<<endl;
+	system("CLS");
+	circular c3;
+	cout<<"list 1 : ";
+	c1.print();
+	cout<<endl;
+	cout<<"list 2 : ";
+	c2.print();
+	cout<<endl;
+	cout<<"\nmerging both lists : "<<endl;
+	c3.mergeCircular(&c1,&c2);
+	c3.print();
+	cout<<endl;
+
+
+
+
+
+	system("pause");
+}
