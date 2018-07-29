@@ -1,0 +1,33 @@
+[org 0x0100]
+
+mov ax,[num1]
+mov cx,16
+mov dx,0
+mov bx,0
+
+
+
+l1:
+	shr ax,1
+	jnc NotCarry
+	
+	add dx,1
+	
+NotCarry	
+	sub cx,1
+	cmp cx,0
+	jne l1
+	add bx,1
+	mov cx,16
+	mov ax,dx
+	mov dx,0
+	cmp ax,1
+	jne l1
+
+
+
+
+mov ax, 0x4c00 ; terminate program
+int 0x21
+
+num1: dw 0xC5A3
