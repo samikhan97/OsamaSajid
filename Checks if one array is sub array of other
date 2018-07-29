@@ -1,0 +1,94 @@
+
+;Write a program that compares two arrays and returns 1 if array2 exists in array1.
+;Note that array1, size1, array2 and size2 are the variables defined in memory.
+
+
+
+[org 0x0100]
+
+jmp start
+
+array1:	dw	1,1,2,3,4,4,5
+size1:	dw	7
+array2:	dw	3,4,4
+size2:	dw	3
+
+subset:
+	push bp				; save value of bp
+	mov cx,bp			; save bp in cx
+	mov bp,sp			; move value of sp in bp
+	push ax
+	push si				; si will store count of array1
+	mov di,0
+	mov ax,0			; ax will store temp results for elements
+	mov dx,0			; dx will store the final result	
+	shl word[bp+4],1	; multiply size1 with 2
+	shl word [bp+6],1	; multiply size 2 with 2
+	mov ax,[bp+6]		; if array2 is greater than array1 then return 0
+	cmp ax,[bp+4]
+	jg end
+
+compare:
+	
+	xchg cx,bp			; move value of bp in cx temporarily
+	mov ax,[bp+di]		; 
+	xchg cx,bp
+	cmp ax,[bx+si]		; comparing/searching element of array2 in array1
+	je equal
+	add si,2
+	cmp si,[bp+4]
+	jnge compare
+	jmp end			; if a element is not found in complete array then end
+
+
+equal:	
+	add di,2		; di holds the count for num of elements that have been checked
+	cmp word di,[bp+6]
+	je found		; if all elements are found jump to found
+	
+	mov ax,[bx+si]
+	mov dx,si		; store value of si temporarily in dx
+	mov si,[bp+4]
+	sub si,2
+	
+	xchg ax,[bx+si]	;swap founded element with last element and reduce the size so it is not checked again in case of same elements
+	mov si,dx
+	mov [bx+si],ax
+	mov si,2
+	sub [bp+4],si
+	
+	mov si,0
+	cmp di,[bp+6]
+	jg end
+	jmp compare
+
+found:
+	mov dx,1
+	jmp end
+
+notfound:
+
+	mov dx,0
+	
+end:
+	cmp dx,1
+	jg notfound
+	
+	
+	pop si
+	pop ax
+	pop bp
+	ret 4
+
+start:
+
+	mov bx,array1		; load array1 in bx
+	mov bp,array2		; load array2 in bp
+	mov ax,[size2]		; save size 2 in stack and pass as parameter
+	push ax
+	mov ax,[size1]		; save size 1 in stack and pass as parameter
+	push ax
+	call subset			; result of call will be in dx
+			
+mov ax,0x4c00
+int 21	
