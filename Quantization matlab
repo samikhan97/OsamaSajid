@@ -1,0 +1,46 @@
+I = imread('cameraman.tif');
+figure,imshow(I); 
+title('Grayscale Image');
+
+f1=input('Enter the number of gray levels ');
+f2=input('Enter the range area, 0 for minimum,1 for middle, 2 for maximum');
+
+thresh = multithresh(I,f1);
+
+if(f2==2)
+valuesMax = [thresh max(I(:))];
+
+[quant_I_max, index] = imquantize(I,thresh,valuesMax);
+figure,imshow(quant_I_max);
+title('Max quantized');
+end
+
+if (f2==0)
+valuesMin = [min(I(:)) thresh];
+
+[quant_I_min, index] = imquantize(I,thresh,valuesMin);
+    figure,imshow(quant_I_min);
+    title('Min quantized');
+    
+end
+
+if (f2==1)
+   
+    valuesMax = [thresh max(I(:))];
+
+[quant_I_max, index] = imquantize(I,thresh,valuesMax);
+
+valuesMin = [min(I(:)) thresh];
+
+[quant_I_min, index] = imquantize(I,thresh,valuesMin);
+
+
+
+    quant_I_mid=(quant_I_min+quant_I_max)/2;
+    figure,imshow(quant_I_mid);
+    title('Mid quantized');
+    
+end
+
+
+return
