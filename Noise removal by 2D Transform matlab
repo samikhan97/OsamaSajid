@@ -1,0 +1,22 @@
+f=(Cam1b); 
+figure,imagesc(f);
+title("original image")
+colormap(gray);
+
+g=fftshift(fft2(f));
+figure,imagesc(abs(g));
+title("Fourier Transform")
+colormap(gray);
+
+
+g(170,170)=0;
+g(88,88)=0;
+
+figure,imagesc(abs(g));
+colormap(gray);
+title("New Fourier Transform")
+
+h=ifft2(ifftshift(g));
+figure,imagesc(abs(h));
+colormap(gray);
+title("Transformed Image")
