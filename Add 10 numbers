@@ -1,0 +1,14 @@
+[org 0x0100]
+;program to add 10 numbers
+
+mov bx,num1		; store address of num1 in bx
+mov cx,10		; initializa cx(count) to 10
+l1: add ax,[bx] ; add value at address of bx to ax 
+add bx,2 		; increments the address
+sub cx,1 		; decrement count
+jnz l1 			; jump to "l1" if count is not zero
+
+mov ax,0x4c00
+int 0x21
+
+num1: dw 1,2,3,4,5,6,9,10,15,20
