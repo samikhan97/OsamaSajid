@@ -1,0 +1,300 @@
+#pragma comment(linker, "/STACK:60000001")
+
+#include <iostream>
+#include <conio.h>
+#include <vector>
+#include <bitset>
+
+using namespace std;
+static int test = 0;
+class Puzzle {
+
+	struct Score{
+		int move;
+		int priority;
+		Score() {
+			move = 0;
+			priority = 0;
+		}
+		Score(const Score& score) {
+			move = score.move;
+			priority = score.priority;
+		}
+		void operator=(const Score& score) {
+			move = score.move;
+			priority = score.priority;
+		}
+		bool operator<(const Score& i) {
+			return (priority < i.priority);
+		}
+		bool operator<=(const Score& i) {
+			return (priority <= i.priority);
+		}
+		bool operator>(const Score& i) {
+			return (priority > i.priority);
+		}
+		bool operator>=(const Score& i) {
+			return (priority >= i.priority);
+		}
+	};
+
+	const static int SIZE = 3;
+	int grid[SIZE][SIZE];
+	int size;
+	int currentBlankX;
+	int currentBlankY;
+	bitset<864197532> passed;
+
+	bool isSolved();
+	int makeInt();
+	bool isChecked(int);
+	bool solveRecPuzzle(int&);
+	bool adjacentSolved();
+	int getScore();
+	void sortScore(Score scores[4]) {
+		bool sorted = false;
+		while (!sorted) {
+			sorted = true;
+			for(int i = 0; i < 3; i++) {
+				if(scores[i] < scores[i + 1]) {
+					sorted = false;
+					swap(scores[i], scores[i + 1]);
+				}
+			}
+		}
+	}
+
+public:
+	const static int SLIDE_UP = 1;
+	const static int SLIDE_DOWN = -1;
+	const static int SLIDE_LEFT = 2;
+	const static int SLIDE_RIGHT = -2;
+	int MOVES[4];
+
+	Puzzle(int[][3]);
+	bool slide(const int);
+	bool checkSlide(int[][SIZE], const int);
+	void printPuzzle();
+	int solvePuzzle();
+};
+
+Puzzle::Puzzle(int uGrid[][SIZE]) {
+	MOVES[0] = SLIDE_UP;
+	MOVES[1] = SLIDE_DOWN;
+	MOVES[2] = SLIDE_LEFT;
+	MOVES[3] = SLIDE_RIGHT;
+	passed.reset();
+	for(int i = 0; i < SIZE; i++) {
+		for(int j = 0; j < SIZE; j++) {
+			if(uGrid[i][j] == 9) {
+				currentBlankX = i;
+				currentBlankY = j;
+			}
+			grid[i][j] = uGrid[i][j];
+		}
+	}
+}
+
+int Puzzle::makeInt() {
+	int num = 0;
+	for(int x = 0; x < SIZE; x++) {
+		for(int y = 0; y < SIZE; y++) {
+			num *= 10;
+			num += grid[x][y];
+		}
+	}
+	return num;
+}
+
+bool Puzzle::isChecked(int num) {
+	return passed.test(num - 123456789);
+}
+
+bool Puzzle::isSolved() {
+	int prev = -1;
+	for(int i = 0; i < SIZE; i++) {
+		for(int j = 0; j < SIZE; j++) {
+			if(prev > grid[i][j])
+				return false;
+			prev = grid[i][j];
+		}
+	}
+	cout << "Solved" << endl;
+	printPuzzle();
+	return true;
+}
+
+int Puzzle::getScore() {
+	int i = 1;
+	int score = 0;
+	for(int x = 0; x < SIZE; x++) {
+		for(int y = 0; y < SIZE; y++) {
+			if(grid[x][y] == i)
+				score++;
+			i++;
+		}
+	}
+	return score;
+}
+
+int Puzzle::solvePuzzle() {
+	int moves = 0;
+	if(isSolved()) {
+		return 0;
+	}
+	if(!solveRecPuzzle(moves))
+		cout << "Not Solved" << moves << endl; 
+	else
+		cout << "Puzzle Solved in " << moves << " moves." << endl;
+	passed.reset();
+	return moves;
+}
+
+bool Puzzle::slide(const int move) {
+	bool moved = false;
+	switch(move) {
+	case SLIDE_UP:
+		if(currentBlankX > 0) {
+			swap(grid[currentBlankX][currentBlankY], grid[currentBlankX - 1][currentBlankY]);
+			currentBlankX = currentBlankX - 1;
+			moved = true;
+		}
+		break;
+	case SLIDE_DOWN:
+		if(currentBlankX < SIZE - 1) {
+			swap(grid[currentBlankX][currentBlankY], grid[currentBlankX + 1][currentBlankY]);
+			currentBlankX = currentBlankX + 1;
+			moved = true;
+		}
+		break;
+	case SLIDE_RIGHT:
+		if(currentBlankY < SIZE - 1) {
+			swap(grid[currentBlankX][currentBlankY], grid[currentBlankX][currentBlankY + 1]);
+			currentBlankY = currentBlankY + 1;
+			moved = true;
+		}
+		break;
+	case SLIDE_LEFT:
+		if(currentBlankY > 0) {
+			swap(grid[currentBlankX][currentBlankY], grid[currentBlankX][currentBlankY - 1]);
+			currentBlankY = currentBlankY - 1;
+			moved = true;
+		}
+		break;
+	}
+	return moved;
+}
+
+bool Puzzle::adjacentSolved() {
+	for(int i = 0; i < 4; i++) {
+		if(slide(MOVES[i])) {
+			if(isSolved()) {
+				return true;
+			}
+			slide(-1 * MOVES[i]);
+		}
+	}
+	return false;
+}
+
+bool Puzzle::solveRecPuzzle(int& moves) {
+	int num = makeInt();
+	Score score[4];
+	int scoreIndex = -1;
+	moves++;
+	if(adjacentSolved()) {
+		return true;
+	}
+	if(!isChecked(num)) {
+		passed[num - 123456789] = 1;
+		for(int i = 0; i < 4; i++) {
+			if(slide(MOVES[i])) {
+				if(!isChecked(makeInt())) {
+					scoreIndex++;
+					score[scoreIndex].priority = getScore();
+					score[scoreIndex].move = MOVES[i];
+				}
+				slide(-1 * MOVES[i]);
+			}
+		}
+		sortScore(score);
+		if(scoreIndex > -1)
+			scoreIndex++;
+		else {
+			moves--;
+			return false;
+		}
+		for(int i = 0; i < scoreIndex; i++) {
+			slide(score[i].move);
+			if(solveRecPuzzle(moves))
+				return true;
+			slide(-1 * score[i].move);
+		}
+	}
+	moves--;
+	return false;
+}
+
+void Puzzle::printPuzzle() {
+	for(int i = 0; i < SIZE; i++) {
+		cout << "\n\t";
+		for(int j = 0; j < SIZE; j++) {
+			if(grid[i][j] != 9)
+				cout << grid[i][j];
+			else 
+				cout << " ";
+			cout << "  ";
+		}
+	}
+	cout << endl;
+}
+
+int main() {
+	char choice = NULL;
+	char choiceMoves = NULL;
+	int temp[3][3];
+	int size = 3;
+	Puzzle* puzzle = nullptr;
+	while (choice != '4') {
+		cout << "\n\n\t\t\t8 - Puzzle Bot\n\n\t\t\t1. Create a puzzle\n\t\t\t2. Make Moves\n\t\t\t3. Solve Puzzle" << endl;
+		choice = _getch();
+		switch(choice) {
+		case '1':
+			cout << "Enter values in puzzle: ";
+			for(int i = 0; i < size; i++) {
+				for(int j = 0; j < size; j++) {
+					cin >> temp[i][j];
+				}
+			}
+			puzzle = new Puzzle(temp);
+			puzzle->printPuzzle();
+			break;
+		case '2':
+			while (choiceMoves != '9') {
+				cout << "Make Move: ";
+				choiceMoves = _getch();
+				switch (choiceMoves) {
+				case 's':
+					puzzle->slide(Puzzle::SLIDE_UP);
+					break;
+				case 'w':
+					puzzle->slide(Puzzle::SLIDE_DOWN);
+					break;
+				case 'd':
+					puzzle->slide(Puzzle::SLIDE_LEFT);
+					break;
+				case 'a':
+					puzzle->slide(Puzzle::SLIDE_RIGHT);
+					break;
+				}
+				puzzle->printPuzzle();
+			}
+			break;
+		case '3':
+			puzzle->solvePuzzle();
+			break;
+		}
+	}
+	delete puzzle;
+	return 0;
+}
