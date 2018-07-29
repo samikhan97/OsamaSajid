@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <sys/wait.h>
+#include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string>
+#include <iostream>
+#include <string>
+#include <fstream>
+
+using namespace std;
+
+int main(int agrc, char* args[]) {
+    int fd[2];
+    pid_t pid;
+    char ch;
+    ifstream inFile(args[1], ios::binary);
+    ofstream outFile(args[2], ios::binary);
+    cout << "Input File: " << args[1] << endl;
+    cout << "Output File: " << args[2] << endl;
+    if(pipe(fd) == -1) {
+        perror("pipe");
+    }
+    pid = fork();
+
+    if(pid == -1) {
+        perror("fork");
+    } else if(pid == 0) {
+        close(fd[1]);
+        while(read(fd[0], &ch, 1) > 0) {
+            outFile.write(&ch, 1);
+        }
+        close(fd[0]);
+    } else if(pid > 0) {
+        close(fd[0]);
+        while(inFile.read(&ch, 1)) {
+            write(fd[1], &ch, 1);
+        }
+        close(fd[1]);
+    }
+    inFile.close();
+    outFile.close();
+    return 0;
+}
