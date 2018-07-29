@@ -1,0 +1,583 @@
+#include <iostream>
+#include <conio.h>
+#include <Windows.h>
+#include <fstream>
+#include <vector>
+#include <string.h>
+#include <list>
+using namespace std;
+int k = 0;
+int num = 0;
+int fin = 0;
+
+struct node;
+struct edge;
+
+struct node
+{
+	int number = 0;
+	char  name[1000];
+	node *next;
+	edge *EHead;
+	edge *ETail;
+}
+*head, *tail;
+
+struct edge
+{
+	char  connect[1000];     //nextNode;
+	int cost;
+	edge *nextEdge;
+};
+
+class graph
+{
+private:
+	node *head;
+	node * tail;
+
+
+
+public:
+	graph();
+	~graph();
+	void insert_user(char *, char *, int);
+	void insert_node(char *);
+	void insert_edge(char *, char *, int);
+	edge * AddEdge(char *, int, edge *, edge *, node * &);  // insert 
+
+	node * search(char *);
+	node * search_prev(char *);   //search
+
+	void delete_node(char *); //delete country;
+	void delete_edge(char *, char *); // delete neighbors
+
+	void print();
+	int length_checker();
+
+	void num_neigh(int);
+	void KM(int);
+
+	void read_file();
+	void reada(graph &);
+
+
+
+};
+
+void graph::reada(graph & ob)
+{
+	vector<char> v1;
+	int i = 0;
+	int co = 0;
+	char c;
+	//graph ob;
+	int cost = 0;
+
+	ifstream fin;
+	fin.open("data.dat");
+
+	while (fin.get(c))
+	{
+		v1.push_back(c);
+	}
+
+	for (int j = 0; j < 279; j++)
+	{
+		char *temp = new char[1000];  //country
+
+
+		while (v1[i] != '>'){
+			temp[co] = v1[i];
+			i++;
+			co++;
+		}
+		i = i + 2;
+		temp[co] = '\0';
+		co = 0;
+		ob.insert_node(temp);
+
+		while (v1[i] != '\n')
+		{
+			char *t = new char[1000];  //neighbour
+			char *qp = new char[100]; //cost
+
+			while (v1[i] != ':'){
+				if (v1[i] == ';')
+				{
+					t[co] = '\0';
+					co = 0;
+
+					cost = 0;
+					goto bb;
+					break;
+				}
+				t[co] = v1[i];
+				i++;
+				co++;
+			}
+			t[co] = '\0';
+			co = 0;
+			i++;
+			while (v1[i] != ';' && v1[i] != 'K'){
+
+				qp[co] = v1[i];
+				i++;
+				co++;
+			}
+			if (co > 3){
+				qp[co - 3] = '\0';
+			}
+
+			cost = atoi(qp);
+		bb:		ob.insert_edge(temp, t, cost);
+			co = 0;
+			delete[] t;
+			delete[] qp;
+			i = i + 2;
+
+		}
+
+		delete[] temp;
+	}
+	//	ob.print();
+
+
+}
+
+void graph::KM(int km)
+{
+	int len = length_checker();
+	int count = 0;
+
+	node *temp = head;
+	edge *t = temp->EHead;
+
+	for (int i = 0; temp != NULL; temp = temp->next)
+	{
+		t = temp->EHead;
+		for (int j = 0; t != NULL; t = t->nextEdge)
+		{
+			if (t->cost > km)
+			{
+				cout << temp->name << ":" << t->connect << " ";
+			}
+
+		}
+		cout << endl;
+	}
+
+}
+
+void graph::num_neigh(int a)
+{
+	int len = length_checker();
+	int count = 0;
+
+	node *temp = head;
+	edge *t = temp->EHead;
+
+	for (int i = 0; temp != NULL; temp = temp->next)
+	{
+		t = temp->EHead;
+		for (int j = 0; t != NULL; t = t->nextEdge)
+		{
+			count++;
+		}
+
+		if (count == a)
+		{
+			t = temp->EHead;
+			for (int j = 0; t != NULL; t = t->nextEdge)
+			{
+				cout << temp->name << ":";
+				cout << t->connect << "  ";
+			}
+		}
+		count = 0;
+	}
+}
+
+
+graph::graph()
+{
+	head = NULL;
+	tail = NULL;
+}
+graph::~graph()
+{
+
+}
+int graph::length_checker()
+{
+	int v = 0;
+	node *temp = head;
+	while (temp != NULL)
+	{
+		temp = temp->next;
+		v++;
+	}
+
+	return v;
+}
+
+void graph::print()
+{
+	int a = length_checker();
+	node *temp = head;
+	edge *t = temp->EHead;
+	for (int i = 0; temp != NULL; temp = temp->next)
+	{
+		cout << temp->name << ":";
+		t = temp->EHead;
+		for (int j = 0; t != NULL; t = t->nextEdge)
+		{
+			cout << t->connect << "  ";
+		}
+		//cout << endl;
+	}
+
+}
+
+node * graph::search(char * a)
+{
+	node * temp = head;
+	while (temp != NULL)
+	{
+		if (strcmp(temp->name, a) == false)
+		{
+			fin++;
+			return temp;
+		}
+		fin++;
+		temp = temp->next;
+	}
+
+}
+node * graph::search_prev(char * a)
+{
+	node * temp = head;
+	if (strcmp(temp->name, a) == false)
+	{
+		k = 1;
+		return temp;
+	}
+
+
+	while (temp->next != NULL)
+	{
+		if (strcmp(temp->next->name, a) == false)
+		{
+			return temp;
+		}
+		temp = temp->next;
+	}
+	temp = temp->next;
+}
+
+void graph::insert_node(char * name)
+{
+	node *ptr = new node;
+	strcpy_s(ptr->name, name);
+	ptr->number = num++;
+	ptr->next = NULL;
+	ptr->EHead = NULL;
+	ptr->ETail = ptr->EHead;
+	if (head)
+	{
+		tail->next = ptr;
+		tail = ptr;
+	}
+	else
+	{
+		head = ptr;
+		tail = head;
+	}
+}
+
+edge * graph::AddEdge(char *con, int cost, edge *head, edge * tail, node * & hi)
+{
+	edge*temp = head;
+	edge* newN = new edge();
+	strcpy_s(newN->connect, con);
+	newN->cost = cost;
+	newN->nextEdge = NULL;
+
+	if (head == NULL)
+	{
+		head = newN;
+		tail = newN;
+		hi->EHead = newN;
+		newN->nextEdge = NULL;
+		return newN;
+	}
+	else
+	{
+		int i;
+		for (i = 0; temp->nextEdge != NULL; i++)
+		{
+			temp = temp->nextEdge;
+		}
+		newN->nextEdge = NULL;
+		temp->nextEdge = newN;
+		tail = newN;
+		return newN;
+	}
+}
+
+void graph::insert_edge(char *source, char *con, int cost)
+{
+	node * a = search(con);
+	node * b = search(source);
+	if (a != NULL)
+	{
+		b->ETail = AddEdge(con, cost, b->EHead, b->ETail, b);
+	}
+	else
+	{
+		cout << "Cannot be Connected No Node " << endl;
+	}
+
+}
+void graph::insert_user(char *source, char *con, int cost)
+{
+	node * a = search(con);
+	node * b = search(source);
+	if (a != NULL)
+	{
+		b->ETail = AddEdge(con, cost, b->EHead, b->ETail, b);
+	}
+	else
+	{
+		cout << "Cannot be Connected No Node " << endl;
+	}
+
+}
+
+
+void graph::delete_node(char  * country)
+{
+	node * temp = search(country);
+	node *temp_prev = search_prev(country);
+	node * n = temp->next;
+
+	if (k == 1)
+	{
+		head = n;
+		k = 0;
+	}
+	else if (temp != NULL)
+	{
+		temp_prev->next = n;
+		delete temp;
+	}
+}
+void graph::delete_edge(char * country, char * ne)
+{
+	node * a = search(country);
+	node *b = search(ne);          //neighbour
+
+	edge * temp = a->EHead;
+	edge * t = NULL;
+	int i = 1;
+	int j = 0;
+	char *qq = new char[1000];
+	qq[j] = ' ';
+	j++;
+	while (ne[i] != '\0'){
+		qq[j] = ne[i];
+		i++;
+		j++;
+	}
+	qq[j-1] = '\0';
+
+
+	if (a == NULL)
+	{
+		cout << "There is no Such Country" << endl;
+	}
+
+	else if (b != NULL)
+	{
+		
+		
+		if (strcmp(a->EHead->connect, qq) == false)
+		{
+			t = a->EHead->nextEdge;
+			a->EHead = t;
+			goto aa;
+		}
+
+		while (strcmp(temp->nextEdge->connect, qq) != false)
+		{
+			temp = temp->nextEdge;
+		}
+		t = temp;
+		t = temp->nextEdge;
+		temp->nextEdge = t->nextEdge;
+
+		delete t;
+	}
+aa:;
+}
+
+char * country(char *a)
+{
+	char *b = new char[1000];
+	b[0] = '\n';
+	int i = 0;
+	int j = 1;
+	while (a[i] != '\0'){
+		b[j] = a[i];
+		i++;
+		j++;
+	}
+	b[j] = ' ';
+	j++;
+	b[j] = '\0';
+
+	return b;
+}
+
+char * neigh(char *ne)
+{
+	int j = 0;
+	int i = 0;
+	char *qq = new char[1000];
+	qq[j] = ' ';
+	j++;
+	while (ne[i] != '\0'){
+		qq[j] = ne[i];
+		i++;
+		j++;
+	}
+	qq[j] = '\0';
+
+	return qq;
+}
+
+
+int main()
+{
+   
+	graph obj;
+	obj.reada(obj);
+   
+    char choice = NULL;
+	while (choice != '9')
+	{
+
+		cout << "\n\n\t\t\t****Graph****\n" << endl;
+		cout << "\n\t\t\t1. Add Country\n\t\t\t2. Add Neighbour Of A Country\n\t\t\t3. Delete Country" <<
+			"\n\t\t\t4. Delete Neighbour Of Country\n\t\t\t5. List All Countries\n\t\t\t6. List All Countries With X Neighbours\n\t\t\t7. List All Countries With KM Neighbours\n\t\t\t8. Shortest Path \n\t\t\t9. Exit" << endl;
+		choice = _getch();
+
+		if (choice == '1')
+		{
+			char * a = new char[1000];
+			char * b = new char[1000];
+			cout << "Enter the Name Of Country" << endl;
+			cin >> a;
+
+			b[0] = '\n';
+			int i = 0;
+			int j = 1;
+			while (a[i] != '\0'){
+				b[j] = a[i];
+				i++;
+				j++;
+			}
+			b[j] = ' ';
+			j++;
+			b[j] = '\0';
+
+			obj.insert_node(b);
+		}
+
+		if (choice == '2')
+		{
+			char * aa = new char[1000];
+			char * bb = new char[1000];
+			char *res = NULL;
+			char *res1 = NULL;
+			int cost = 0;
+			cout << "Enter the Country You want to add Neighbour " << endl;
+			cin >> aa;
+			cout << "Enter the Neighbour " << endl;
+			cin >> bb;
+			cout << "Enter the Cost" << endl;
+			cin >> cost;
+			res = country(aa);
+			res1 = neigh(bb);
+			obj.insert_edge(res, res1, cost);
+			
+		}
+		if (choice == '3')
+		{
+			char * z = new char[1000];
+			char *z1 = NULL;
+			cout << "Enter the Country You Want to Delete " << endl;
+			cin >> z;
+			z1 = country(z);
+			obj.delete_node(z1);
+			
+		}
+		if (choice == '4')
+		{
+			char * aaa = new char[1000];
+			char * bbb = new char[1000];
+			char *ress = NULL;
+			char *ress1 = NULL;
+			int cost = 0;
+			cout << "Enter the Country " << endl;
+			cin >> aaa;
+			cout << "Enter the Neighbour " << endl;
+			cin >> bbb;
+			
+			ress = country(aaa);
+			ress1 = country(bbb);
+			obj.delete_edge(ress, ress1);
+			
+		}
+
+		if (choice == '5')
+		{
+			obj.print();
+			
+		}
+		if (choice == '6')
+		{
+			int a = 0;
+			cout << "Enter the Number of Neighbours " << endl;
+			cin >> a;
+			obj.num_neigh(a);
+			
+		}
+		if (choice == '7')
+		{
+			int a = 0;
+			cout << "Enter the KM " << endl;
+			cin >> a;
+			obj.KM(a);
+		}
+		if (choice == '8')
+		{
+			
+		}
+		if (choice == '9')
+		{
+			exit(0);
+		}
+	}
+
+
+
+	system("pause");
+}
+
+
+
+
+
+
+
