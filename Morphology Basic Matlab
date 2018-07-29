@@ -1,0 +1,15 @@
+original = imread('coins.png');
+figure,imshow(original);
+
+originalBW=imbinarize(original);
+figure,imshow(originalBW);
+
+se = strel('disk',10);
+closeBW = imclose(originalBW,se);
+figure, imshow(closeBW)
+
+
+so = strel('disk',5);
+
+afterOpening = imopen(originalBW,so);
+figure,imshow(afterOpening,[]);
