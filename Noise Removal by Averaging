@@ -1,0 +1,27 @@
+ f=imread('cameraman.tif');
+ figure,imagesc(f);
+ colormap(gray);
+ title('Original')
+
+ f=double(f)/256;
+ n1=randn(256,256)*(sqrt(0.2));            
+ n2=randn(256,256)*(sqrt(0.2));           
+ f1=f+n1;
+ f2=f+n2;
+ 
+ figure,imagesc(f1);
+ colormap(gray);
+ title('Noise1');
+ figure,imagesc(f2);
+ colormap(gray);
+ title('Noise2');
+ 
+ avg=(f1+f2)/2;
+ v1=var(f1(:));
+ v2=var(f2(:));
+ v3=var(avg(:));			     
+ figure,imagesc(avg);
+ colormap(gray);
+ title('Average');
+ 
+
