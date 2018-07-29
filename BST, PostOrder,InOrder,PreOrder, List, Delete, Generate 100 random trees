@@ -1,0 +1,496 @@
+#include <iostream>
+#include <cmath>
+#include <conio.h>
+#include <vector>
+
+using namespace std;
+
+template<typename T>
+class BST{
+public:
+	class Iterator;
+private:
+	struct node {
+		T data;
+		node *lChild, *rChild;
+
+		node(const T& obj){
+			data = obj;
+			lChild = nullptr;
+			rChild = nullptr;
+		}
+	};
+	node* root;
+	int n;
+
+	node* createNode(const T& obj);
+	void getNodes_inOrder(vector<node*>& v, node* n);
+	void getNodes_preOrder(vector<node*>& v, node* n);
+	void getNodes_postOrder(vector<node*>& v, node* n);
+	int height(typename node*);
+	bool isLeaf(node*);
+	void pathSum(vector<T>&, node*, int);
+	void width(vector<int>&, node*, int);
+	void deleteTree(node*);
+
+public:
+
+	static const int IN_ORDER = 0;
+	static const int PRE_ORDER = 1;
+	static const int POST_ORDER = 2;
+
+	class Iterator{
+	private:
+		vector<node*> nodes;
+		int index;
+	public:
+		Iterator(vector<node*>, int);
+		Iterator(const Iterator& obj);
+		bool operator!=(Iterator& obj);
+		Iterator& operator++();
+		Iterator operator++(int);
+		T operator*();
+	};
+
+	BST();
+	~BST();
+	void insert(const T&);
+	void remove(const T&);
+	bool search(const T&);
+	void pathSum(vector<T>&);
+	void updateKey(const T&, const T&);
+	int width();
+	int size();
+	int height();
+	Iterator begin(const int);
+	Iterator end(const int);
+};
+
+template<typename T>
+typename BST<T>::node* BST<T>::createNode(const T& obj) {
+	return new node(obj);
+}
+
+template<typename T>
+BST<T>::BST() {
+	root = nullptr;
+	n = 0;
+}
+
+template<typename T>
+void BST<T>::getNodes_inOrder(vector<node*>& v, node* n) {
+	if(n != nullptr) {
+		getNodes_inOrder(v, n->lChild);
+		v.push_back(n);
+		getNodes_inOrder(v, n->rChild);
+	}
+}
+
+template<typename T>
+void BST<T>::getNodes_preOrder(vector<node*>& v, node* n) {
+	if(n != nullptr) {
+		v.push_back(n);
+		getNodes_preOrder(v, n->lChild);
+		getNodes_preOrder(v, n->rChild);
+	}
+}
+
+template<typename T>
+void BST<T>::getNodes_postOrder(vector<node*>& v, node* n) {
+	if(n != nullptr) {
+		getNodes_postOrder(v, n->lChild);
+		getNodes_postOrder(v, n->rChild);
+		v.push_back(n);
+	}
+}
+
+template<typename T>
+void BST<T>::insert(const T& obj) {
+	node* curr = root, *prev = nullptr;
+	while (curr != nullptr) {
+		prev = curr;
+		if(obj > curr->data) {
+			curr = curr->rChild;
+		} else {
+			curr = curr->lChild;
+		}
+	}
+	if(prev == nullptr) {
+		root = createNode(obj);
+	} else {
+		if(obj >= prev->data)
+			prev->rChild = createNode(obj);
+		else 
+			prev->lChild = createNode(obj);
+	}
+	n++;
+}
+
+template<typename T>
+bool BST<T>::isLeaf(typename BST<T>::node* n) {
+	return (n->lChild == nullptr && n->rChild == nullptr);
+}
+
+template<typename T>
+void BST<T>::pathSum(vector<T>& sums, typename BST<T>::node* n, int a) {
+	if(isLeaf(n)) {
+		sums.push_back(a + n->data);
+	} else {
+		a += n->data;
+		if(n->lChild != nullptr)
+			pathSum(sums, n->lChild, a);
+		if(n->rChild != nullptr)
+			pathSum(sums, n->rChild, a);
+	}
+}
+
+template<typename T>
+void BST<T>::pathSum(vector<T>& sums) {
+	int a = 0;
+	pathSum(sums, root, a);
+}
+
+template<typename T>
+void BST<T>::width(vector<int>& level, typename BST<T>::node* n, int i) {
+	if(n != nullptr) {
+		level[i]++;
+		width(level, n->lChild, i + 1);
+		width(level, n->rChild, i + 1);
+	}
+}
+
+template<typename T>
+int BST<T>::width() {
+	vector<int> levels;
+	int h = height() + 1;
+	for(int x = 0; x < h; x++) {
+		levels.push_back(0);
+	}
+	width(levels, root, 0);
+	int max = levels[0];
+	for(int x = 0; x < h; x++) {
+		if(levels[x] > max)
+			max = levels[x];
+	}
+	return max;
+}
+
+template<typename T>
+void BST<T>::updateKey(const T& rKey, const T& aKey) {
+	remove(rKey);
+	insert(aKey);
+} 
+
+template<typename T>
+bool BST<T>::search(const T& obj) {
+	node* curr = root, *prev = nullptr;
+	while (curr != nullptr) {
+		if(curr->data == obj) {
+			return true;
+		}
+		prev = curr;
+		if(obj > curr->data) {
+			curr = curr->rChild;
+		} else {
+			curr = curr->lChild;
+		}
+	}
+	return false;
+}
+
+template<typename T>
+void BST<T>::remove(const T& obj) {
+	node* curr = root, *prev = nullptr;
+	bool left = false, right = true;
+	while (curr != nullptr && curr->data != obj) {
+		prev = curr;
+		if(obj > curr->data) {
+			curr = curr->rChild;
+			right = true;
+			left = false;
+		} else {
+			curr = curr->lChild;
+			left = true;
+			right = false;
+		}
+	}
+	if(curr != nullptr) {
+		if(curr->rChild == nullptr && curr->lChild == nullptr) {
+			if(prev != nullptr) {
+				if(left) {
+					delete prev->lChild;
+					prev->lChild = nullptr;
+				} else if(right) {
+					delete prev->rChild;
+					prev->rChild = nullptr;
+				}
+			} else {
+				delete root;
+				root = nullptr;
+			}
+		} else if(curr->lChild == nullptr) {
+			if(left) {
+				prev->lChild = curr->rChild;
+				delete curr;
+			} else if(right) {
+				prev->rChild = curr->rChild;
+				delete curr;
+			}
+		} else if(curr->rChild == nullptr) {
+			if(left) {
+				prev->lChild = curr->lChild;
+				delete curr;
+			} else if(right) {
+				prev->rChild = curr->lChild;
+				delete curr;
+			}
+		} else {
+			left = right = false;
+			prev = curr;
+			node* p = curr->lChild;
+			node* tempNode = nullptr;
+			T temp;
+			while(p->rChild != nullptr) {
+				prev = p;
+				p = p->rChild;
+			}
+			//Swapping
+			temp = p->data;
+			p->data = curr->data;
+			curr->data = temp;
+			
+			if(p->lChild == nullptr) {
+				delete prev->rChild;
+				prev->rChild = nullptr;
+			} else {
+				prev->lChild = p->lChild;
+				delete p;
+			}
+		}
+		n--;
+	}
+}
+
+template<typename T>
+int BST<T>::size() {
+	return n;
+}
+
+template<typename T>
+int BST<T>::height(typename BST<T>::node* n) {
+	int left = 0, right = 0;
+	if(n == nullptr || isLeaf(n)) {
+		return 0;
+	} else {
+		left = height(n->lChild);
+		right = height(n->rChild);
+		return (left > right ? left : right) + 1;
+	}
+}
+
+template<typename T>
+int BST<T>::height() {
+	return height(root);
+}
+
+template<typename T>
+typename BST<T>::Iterator BST<T>::begin(const int KEY) {
+	vector<node*> n;
+	if(KEY == IN_ORDER)
+		getNodes_inOrder(n, root);
+	else if(KEY == POST_ORDER)
+		getNodes_postOrder(n, root);
+	else if(KEY == PRE_ORDER)
+		getNodes_preOrder(n, root);
+	Iterator i(n, 0);
+	return i;
+}
+
+template<typename T>
+typename BST<T>::Iterator BST<T>::end(const int KEY) {
+	vector<node*> v;
+	if(KEY == IN_ORDER)
+		getNodes_inOrder(v, root);
+	else if(KEY == POST_ORDER)
+		getNodes_postOrder(v, root);
+	else if(KEY == PRE_ORDER)
+		getNodes_preOrder(v, root);
+	Iterator i(v, n);
+	return i;
+}
+
+template<typename T>
+void BST<T>::deleteTree(typename BST<T>::node* n) {
+	if(n != nullptr) {
+		deleteTree(n->lChild);
+		deleteTree(n->rChild);
+		delete n;
+	}
+}
+
+template<typename T>
+BST<T>::~BST() {
+	deleteTree(root);
+}
+
+/* Itertor Starts */
+
+template<typename T>
+BST<T>::Iterator::Iterator(const typename BST<T>::Iterator& obj): nodes(obj.nodes) {
+	index = obj.index;
+	nodes = obj.nodes;
+}
+
+template<typename T>
+BST<T>::Iterator::Iterator(vector<node*> n, int i): nodes(n) {
+	index = i;
+}
+
+template<typename T>
+typename bool BST<T>::Iterator::operator!=(typename BST<T>::Iterator& obj) {
+	return (index != obj.index);
+}
+
+template<typename T>
+typename BST<T>::Iterator& BST<T>::Iterator::operator++() {	//Pre-increment
+	index++;
+	return this;
+}
+
+template<typename T>
+typename BST<T>::Iterator BST<T>::Iterator::operator++(int) {	//Post-increment
+	BST<T>::Iterator i = *this;
+	index++;
+	return i;
+}
+
+template<typename T>
+T BST<T>::Iterator::operator*() {
+	return nodes[index]->data;
+}
+
+/* Itertor Ends */
+
+int main() {
+	BST<int> tree;
+	char choice = NULL;
+	int input = 0;
+	while(choice != 27) {
+		cout << "\n\n\t\t\t***Binary Search Tree***\n" << endl;
+		cout << "\n\t\t\t1. Insert\n\t\t\t2. Remove\n\t\t\t3. Search" << 
+			"\n\t\t\t4. Height\n\t\t\t5. Size\n\t\t\t6. Print Sorted\n\t\t\t7. Path Sums" << 
+			"\n\t\t\t8. Width\n\t\t\t9. Update Key\n\t\t\ta. Experiment\n\t\t\tESC. Exit" << endl;
+		choice = _getch();
+		switch (choice)
+		{
+		case '1':
+			cout << "Enter number: ";
+			cin >> input;
+			if(!tree.search(input))
+				tree.insert(input);
+			break;
+		case '2':
+			cout << "Enter number: ";
+			cin >> input;
+			tree.remove(input);
+			break;
+		case '3':
+			cout << "Enter number: ";
+			cin >> input;
+			cout << (tree.search(input)? "Number found in Tree" : "Number not found") << endl;
+			break;
+		case '4':
+			cout << "Tree height is: " << tree.height() << endl;
+			break;
+		case '5':
+			cout << "Tree size is: " << tree.size() << endl;
+			break;
+		case '6': {
+			char choose = NULL;
+			int a;
+			cout << "Choose printing prefernce: \n\t\t\ta. InOrder\n\t\t\tb. Pre-Order\n\t\t\tc. PostOrder\n";
+			choose = _getch();
+			if(choose == 'a') {
+				a = tree.IN_ORDER;
+			} else if(choose == 'b') {
+				a = tree.PRE_ORDER;
+			} else if(choose == 'c') {
+				a = tree.POST_ORDER;
+			} else {
+				cout << "Invalid Choice!" <<endl;
+				break;
+			}
+			for(BST<int>::Iterator itr = tree.begin(a); itr != tree.end(a); itr++) {
+				cout << *itr << " ";
+			}
+			break;
+		}
+		case '7':{
+			vector<int> sums;
+			tree.pathSum(sums);
+			cout << "Path Sums are:\n";
+			cout << "{";
+			for(int x = 0; x < sums.size(); x++) {
+				cout << sums[x];
+				if(x != sums.size() - 1)
+					cout << ", ";
+			}
+			cout << "}\n";
+			
+			break;
+		}
+		case '8':
+			cout << "Max Width of BST is: " << tree.width() << endl;
+			break;
+		case '9': {
+			int aKey, rKey;
+			cout << "Enter current key: ";
+			cin >> rKey;
+			cout << "Enter new key: ";
+			cin >> aKey;
+			if(tree.search(rKey)) {
+				tree.updateKey(rKey, aKey);
+			} else {
+				cout << rKey << " doesn't exist in tree." << endl;
+			}
+			break;
+		}
+		case 'a':{
+			cout << "Initiating Experiment..." << endl;
+			const int SIZE = 1000;
+			BST<int> treesArray[SIZE];
+			for(int x = 0; x < SIZE; x++) {
+				for (int j = 0; j < SIZE; j++) {
+					treesArray[x].insert(rand() % 100);
+				}
+			}
+			cout << "Thousand Trees with random data generated successfully." << endl;
+			cout << "Press any key to calculate Average." << endl;
+			_getch();
+			double avg = 0;
+			for (int i = 0; i < SIZE; i++) {
+				avg += treesArray[i].height();
+			}
+			avg /= double(SIZE);
+			cout << "Average of heights of thousand trees calculated." << endl;
+			cout << "Press any key to compare with lg(1000+1) & 1000-1" << endl;
+			_getch();
+			cout << "\nlg(1000 + 1) = " << "9.967226" << endl;
+			cout << "1000 - 1 = " << "999" << endl;
+			cout << "Average height: " << avg << endl;
+			cout << "\nPress any key to return to menu." << endl;
+			_getch();
+			break;
+		}
+		default:
+			break;
+		}
+	}
+	return 0;
+}
+
+/*
+Q4 (iv): According to our experiment the generates random value below 100, we have observed that heigth of our
+tree is near enough to lg(1000 + 1) so we can assume that if we take data randomly from file and populate bst then
+trees heigth can be close to lg(1000 + 1).
+*/
