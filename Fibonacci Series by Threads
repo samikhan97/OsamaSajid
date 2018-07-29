@@ -1,0 +1,49 @@
+#include <iostream>
+#include <string.h>
+#include <vector>
+#include <cstdlib>
+
+using namespace std;
+
+void* fibonacciGenerator(void* num) {
+    int a = atoi((char*) num);
+    vector<int>* arr = new vector<int>(); 
+    int i = 0;
+    if(a > 0) {
+        arr->push_back(0);
+        i++;
+        if(a > 1) {
+            arr->push_back(1);
+            i++;
+        }
+        while((*arr)[i - 1] < a) {
+            arr->push_back((*arr)[i - 1] + (*arr)[i - 2]);
+            i++;
+        }    
+    }
+    pthread_exit(null);
+}
+
+int main(int argc, char* argv[]) {
+    pthread_t* tid = new pthread_t[argc - 1];
+
+    for(int i = 1; i < argc; i++) {
+        if (pthread_create(&tid[i - 1], NULL, &fibonacciGenerator, argv[i])==-1) {
+            cout<<"Thread Creation Failed!"<<endl;
+            return 1;
+        }
+    }
+
+    vector<int>* arr;
+    for(int i = 1; i < argc; i++) {
+        pthread_join(tid[i - 1], (void**) &arr);
+        cout << "Thread " << i - 1 << ": ";
+        for(int j = 0; j < arr->size(); j++) {
+            cout << (*arr)[j] << ", ";
+        }
+        cout << endl;
+        delete arr;
+    }
+
+    return 0;
+} 
