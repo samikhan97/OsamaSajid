@@ -1,0 +1,6 @@
+img = imread('coins.png');
+figure,imshow(img);
+imbinarize(img);
+
+b=bwskel(imbinarize(img),'MinBranchLength',10);
+montage({bw1,bw2},'BackgroundColor','blue','BorderSize',5);
