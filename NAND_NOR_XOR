@@ -1,0 +1,35 @@
+A=imread('cameraman.tif');
+B=imread('cameraman.tif');
+B=B+50;
+figure, imshow(A);
+figure, imshow(B);
+
+A=imbinarize(A);
+B=imbinarize(B);
+
+C=bitand(A,B);
+C=not(C);
+
+figure, imshow(C);
+title('NAND')
+
+D=bitor(A,B);
+D=not(D);
+
+figure, imshow(D);
+title('Nor')
+
+
+NA=not(A);
+NB=not(B);
+
+H1=bitor(A,B);
+H2=bitor(NA,NB);
+
+X=bitand(H1,H2);
+figure, imshow(X);
+title('Xor')
+
+
+
+
