@@ -1,0 +1,61 @@
+% p3.5
+
+grayos=imread('BadHist.jpg');
+
+% Contrast Stretching
+a = min(grayos(:));
+b = max(grayos(:));
+
+
+
+egrayos= (grayos-a)*(255/(b-a));
+
+figure,imshow(grayos);
+title('MyBadHist Original');
+figure,imshow(egrayos);
+title('MyBadHist Enhanced');
+figure, hist(grayos(:),[0:255]);
+title('MyBadHist Original');
+figure, hist(egrayos(:),[0:255]);
+title('MyBadHist Enchanced');
+
+
+Matrix = zeros(1,256,'double');    
+                                            
+for i=1:683
+    for j=1:1024
+        Matrix(grayos(i,j))= 1 + Matrix(grayos(i,j));
+    end
+end
+
+TotalPixels = 683 * 1024;
+
+for i = 1:256
+    Matrix(i) = Matrix(i)/TotalPixels;   % calculating probability
+end
+
+%P2.4
+for i=2:256
+    Matrix(i) = Matrix(i) + Matrix(i - 1);   % Adding all probablities
+end
+
+    
+for i=2:256
+    Matrix(i) = floor(Matrix(i) * 256);   % scaling floor product
+end
+
+% map onto BadHist
+for i=1:683
+    for j=1:1024
+        egrayos(i,j) = Matrix(grayos(i,j)) ; 
+    end
+end
+
+figure,imshow(grayos);
+title('MyBadHist Original');
+figure,imshow(egrayos);
+title('MyBadHist Enhanced');
+figure, hist(grayos(:),[0:255]);
+title('MyBadHist Original');
+figure, hist(egrayos(:),[0:255]);
+title('MyBadHist Enchanced');
