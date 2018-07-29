@@ -1,0 +1,147 @@
+%Input image
+img = imread ('2.png');
+img  = rgb2gray(img);
+
+
+
+%Show input image
+figure, imshow(img);
+title('Original');
+
+
+
+edge_final = edge(img,'canny');
+figure, imshow(edge_final);
+
+[H,T,R] = hough(edge_final);
+figure,imshow(H,[],'XData',T,'YData',R,...
+            'InitialMagnification','fit');
+xlabel('\theta'), ylabel('\rho');
+axis on, axis normal, hold on;
+
+P  = houghpeaks(H,5,'threshold',ceil(0.3*max(H(:))));
+x = T(P(:,2)); y = R(P(:,1));
+plot(x,y,'s','color','white');
+
+lines = houghlines(edge_final,T,R,P,'FillGap',5,'MinLength',7);
+figure, imshow(img), hold on
+max_len = 0;
+second_max_len=0;
+xy_second_long=0;
+xy_long = 0;
+
+for k = 1:length(lines)
+   xy = [lines(k).point1; lines(k).point2];
+   plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
+
+   % Plot beginnings and ends of lines
+   plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
+   plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
+
+   % Determine the endpoints of the longest line segment
+   len = norm(lines(k).point1 - lines(k).point2);
+   
+     if (len > second_max_len)
+       
+       
+       second_max_len=len;
+       xy_second_long= xy;
+ 
+    end
+   
+   if (len > max_len)
+       
+       
+       second_max_len=max_len;
+       xy_second_long= xy_long;
+     
+     
+      max_len = len;
+      xy_long = xy;
+   end
+   
+ 
+   
+    
+end
+
+plot(xy_long(:,1),xy_long(:,2),'LineWidth',2,'Color','cyan');
+plot(xy_second_long(:,1),xy_second_long(:,2),'LineWidth',2,'Color','blue');
+
+coefficients1 = polyfit(xy_long(:,1), xy_long(:,2), 1);
+% Now get the slope, which is the first coefficient in the array:
+slopeLong = coefficients1(1);
+
+AngleLong=round(atan(slopeLong)* 180 / pi);
+
+coefficients2 = polyfit(xy_second_long(:,1), xy_second_long(:,2), 1);
+slopeShort = coefficients2(1);
+
+AngleShort=round(atan(slopeShort)* 180 / pi);
+
+ if(AngleShort<-60) && (AngleShort>=-90)
+     
+        H=12;
+ end
+
+ if(AngleShort<-30) && (AngleShort>=-60)
+     
+        H=1;
+ end
+ 
+  if(AngleShort<0) && (AngleShort>=-30)
+     
+        H=2;
+ end
+
+ if(AngleShort<30) && (AngleShort>=0)
+     
+        H=3;
+ end
+ 
+ if(AngleShort<60) && (AngleShort>=30)
+     
+        H=4;
+ end
+ 
+ if(AngleShort<90) && (AngleShort>=60)
+     
+        H=5;
+ end
+ 
+  if(AngleShort==90)
+     
+        H=6;
+ end
+
+  if(AngleLong<0) && (AngleLong>=-30)
+     
+        M=40;
+ end
+
+ if(AngleLong<-30) && (AngleLong>=-60)
+     
+        M=35;
+ end
+ 
+  if(AngleLong<-60) && (AngleLong>=-90)
+     
+        M=0;
+ end
+
+ if(AngleLong<30) && (AngleLong>=0)
+     
+        M=45;
+ end
+ 
+ if(AngleLong<60) && (AngleLong>=30)
+     
+        M=50;
+ end
+ 
+ if(AngleLong<90) && (AngleLong>=60)
+     
+        M=55;
+ end
+
+
