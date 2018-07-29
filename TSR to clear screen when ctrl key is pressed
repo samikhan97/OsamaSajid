@@ -1,0 +1,102 @@
+[org 0x100]
+
+xor ax,ax
+mov es,ax
+cli
+mov word[es:9*4],myisr
+mov[es:9*4+2],cs
+sti
+l1: jmp l1
+
+mov ax,0x4c00
+int 21h
+c: times 2000  dw 0 
+
+myisr:
+push ax
+push es
+
+mov ax,0xb800
+mov es,ax
+mov di,0
+mov si,0
+l2:
+mov ax,[es:di]
+mov word [c+si],ax
+add di,2
+add si,2
+cmp di,3996
+jne l2
+
+
+in al,0x60
+cmp al,0x1d   ;;sift L
+jne nextcmp
+
+call clr
+;;print
+jmp nomatch
+
+nextcmp:
+cmp al,0x36
+jne nex
+
+call clr
+jmp nomatch
+
+nex:
+call printstr
+
+
+nomatch:
+mov al,0x20
+out 0x20,al
+
+pop es
+pop ax
+iret
+
+
+printstr:
+push bp
+mov bp,sp
+push es
+push ax
+push cx
+push si
+push di
+
+mov ax,0xb800
+mov es,ax
+mov si,[bp+4]
+mov cx,1900
+mov ah,0x07
+
+cld
+nc:
+lodsb
+stosw
+loop nc
+
+pop di
+pop si
+pop cx
+pop ax
+pop es
+pop bp 
+ret 
+
+clr:
+push es
+push ax
+push cx
+push di
+mov ax,0x0720
+mov cx,2000
+cld
+rep stosw
+pop di
+pop cx
+pop ax
+pop es
+ret
