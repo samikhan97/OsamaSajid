@@ -1,0 +1,34 @@
+[org 0x0100]
+
+
+mov bx,num1
+mov ax,[max]
+mov dx,[min]
+mov cx,10
+mov si,0
+
+maxcheck:
+	cmp [bx+si],ax
+	jb mincheck
+	mov ax,[bx+si]
+
+mincheck:
+	cmp[bx+si],dx
+	ja next
+	mov dx,[bx+si]
+	
+next:
+	add si,2
+	sub cx,1
+	cmp cx,0
+	jne maxcheck
+	
+	mov [max],ax
+	mov [min],dx
+	
+mov ax, 0x4c00 ; terminate program
+int 0x21
+
+num1: dw 2,3,4,7,6,7,10,9,8,5
+max: dw 0
+min: dw 1000
