@@ -1,0 +1,29 @@
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+
+int main() {
+    pid_t pid;
+    
+    pid = fork();
+    if(pid == 0) {
+        //int num1, num2;
+        char num1[20], num2[20];
+        int result = 0;
+        printf("Input 1st Num: \n");
+        scanf("%s", &num1);
+        printf("Input 2nd Num: \n");
+        scanf("%s", &num2);
+        printf(num1);
+        int exec = execlp("./add", "add", num1, num2, NULL);
+        if(exec != 0)
+            printf("Error Switching!");
+    } else if(pid > 0) {
+        //Parent
+        wait(NULL);
+        printf("Child process completed its task.");
+    } else {
+        printf("Error\n\n");
+    }
+}
