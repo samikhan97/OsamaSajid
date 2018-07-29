@@ -1,0 +1,28 @@
+% P2.2
+
+fos=imread('MyBadHist.jpg');
+grayos=rgb2gray(fos);
+ 
+% imshow(grayos);
+% title('MyBadHist Original')
+
+
+
+
+
+% Contrast Stretching
+a = min(grayos(:));
+b = max(grayos(:));
+
+
+
+egrayos= (grayos-a)*(255/(b-a));
+
+figure,imshow(grayos);
+title('MyBadHist Original');
+figure,imshow(egrayos);
+title('MyBadHist Enhanced');
+figure, hist(grayos(:),[0:255]);
+title('MyBadHist Original');
+figure, hist(egrayos(:),[0:255]);
+title('MyBadHist Enchanced');
