@@ -1,0 +1,45 @@
+[org 0x0100]
+
+mov ax,[r]
+mov cx,[l]
+sub cx,1
+mov dx,cx
+mov bx,0
+
+
+l1:
+	add ax,ax   ; calculates r^n
+	sub dx,1
+	jnz	l1;		  
+	
+	
+	mov bx,[a]
+	mul bx
+	mov bx,0
+	add [sum],ax	 ; calculates ar^n in bx
+	sub cx,1
+	mov dx,cx	 ;resets dx to calculate ar^n-1
+	mov ax,[r]	 ;resets ax to calculate r^n-1
+	cmp cx,0
+	jne l1
+	
+	mov bx,[a]
+	mul bx
+	
+	add [sum],ax
+	
+	
+
+
+
+
+mov ax, 0x4c00 ; terminate program
+int 0x21
+
+a: dw 3
+l: dw 5
+r: dw 2
+sum: dw 0
+
+; 96, 48, 24,12,6
+; 96, 144,168,180,186
