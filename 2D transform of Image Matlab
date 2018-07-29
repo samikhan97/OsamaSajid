@@ -1,0 +1,9 @@
+f=imread('cameraman.tif');
+figure,imagesc(f);
+title('Original Image');  
+colormap(gray);
+f=fft2(f);
+f=fftshift(f);
+figure,imagesc(abs(f));
+title('2d transform');  
+colormap(gray);
