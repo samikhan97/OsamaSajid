@@ -1,0 +1,817 @@
+#include <iostream>
+#include <conio.h>
+#include <time.h>
+#include <Windows.h>
+#include <stdio.h>
+using namespace std;
+
+int ok = 0;
+
+struct  Node        //link list classs
+{
+
+	int data;
+	Node* next;
+	Node* prev;
+
+};
+
+class link
+{
+
+private:
+
+public:
+	Node * head;
+	void insert_at_tail(int);
+	void print();
+	void delete_tail();
+	int len_checker();
+
+	link();
+	~link();
+
+	void deleteList()
+	{
+		int y = len_checker();
+		for (int i = 0; i < y; i++){
+			delete_tail();
+		}
+
+	}
+};
+
+int link::len_checker()
+{
+	int v = 0;
+	Node *temp = head;
+	while (temp != NULL){
+		temp = temp->next;
+		v++;
+	}
+
+	return v;
+}
+link::link(){
+	head = NULL;
+}
+link :: ~link()
+{
+}
+void link::insert_at_tail(int x)     //inserting at tail ..first function
+{
+	Node*temp = head;
+	Node* newN = new Node();
+	newN->data = x;
+	newN->next = NULL;
+	newN->prev = NULL;
+
+	if (head == NULL) {
+		head = newN;
+		newN->prev = head;
+		newN->next = NULL;
+	}
+	else {
+		int i;
+		for (i = 0; temp->next != NULL; i++){
+			temp = temp->next;
+		}
+
+		newN->prev = temp;
+		newN->next = NULL;
+		temp->next = newN;
+	}
+}
+
+void link::print()
+{
+	Node *current;
+	current = head;
+	while (current != nullptr)
+	{
+		cout << current->data << " -> ";
+		current = current->next;
+	}
+	cout << "NULL" << endl;
+}
+void link::delete_tail(){         //deleteing from tail
+	Node *temp = head;
+	if (head->next == NULL){
+		head = NULL;
+	}
+
+	if (head != NULL){
+		for (int i = 1; temp->next->next != NULL; i++){
+			temp = temp->next;
+		}
+
+		temp->next = NULL;
+	}
+}
+
+
+
+struct  node      // tree class node containg data and 9 pointer for 9 children which will be our possibilities
+{
+
+	int data;
+	node* arra[9];
+	int *array1;
+	bool check = false;
+
+	node(){
+		for (int i = 0; i < 9; i++){
+			arra[i] = NULL;
+		}
+
+		array1 = new int[9];
+		for (int i = 0; i < 9; i++){
+			array1[i] = -1;
+		}
+	}
+};
+
+class tree{
+private:
+	int traverse;
+public:
+	node *root;
+	node *main;
+	tree();
+	~tree();
+	void insert(link, int);           //creates tree 
+	int search(int);                  //search the number in the tree 
+	void insert_null(link);
+	void search2(int);
+	void copy(int *);
+	void print_tree_array(){
+		for (int i = 0; i < 9; i++){
+			cout << root->array1[i] << " ";
+		}
+		cout << endl;
+	}
+	void traverse_tree();
+};
+void tree::traverse_tree(){
+	node *temp = main;
+	
+	for (int i = 0; i < traverse + 1; i++){
+		for (int i = 0; i < 9; i++){
+			if (temp->check == true){
+				temp = temp->arra[i];
+				break;
+			}
+			temp = temp->arra[i];
+		}
+		cout << temp->data << " ";
+	}
+	cout << endl;
+
+}
+
+void tree::copy(int *a)
+{
+	for (int i = 0; i < 9; i++){
+		root->array1[i] = a[i];
+	}
+
+
+}
+
+int tree::search(int pos)
+{
+	int i = 0;
+	for (i = 0; i < 9; i++)
+	{
+		if (root->arra[i]->data == pos)
+		{
+			break;
+		}
+	}
+	return i;
+}
+void tree::search2(int pos)
+{
+	int i = 0;
+	for (i = 0; i < 9; i++){
+		if (root->arra[i] != NULL && root->arra[i]->data == pos)
+		{
+			root->arra[i]->data = -1;
+			break;
+		}
+	}
+
+}
+void tree::insert_null(link l1){
+	int len = l1.len_checker();
+	if (root == NULL)
+	{
+		root = new node();
+		main = root;
+		Node *temp = l1.head;
+		for (int i = 0; i < len; i++)
+		{
+			root->arra[i] = new node();
+			root->arra[i]->data = temp->data;
+			temp = temp->next;
+		}
+		root->check = true;
+	}
+}
+tree::tree(){
+	traverse = 0;
+}
+
+tree::~tree()
+{
+}
+void  tree::insert(link l1, int a)
+{
+
+	int len = l1.len_checker();
+	if (root == NULL)
+	{
+		root = new node();
+		Node *temp = l1.head;
+		for (int i = 0; i < len; i++)
+		{
+			root->arra[i] = new node();
+			root->arra[i]->data = temp->data;
+			temp = temp->next;
+		}
+	}
+	else
+	{
+		root = root->arra[a];
+		Node *temp = l1.head;
+		for (int i = 0; i < len; i++)
+		{
+			root->arra[i] = new node();
+			root->arra[i]->data = temp->data;
+			temp = temp->next;
+		}
+		root->check = true;
+		traverse++;
+	}
+}
+
+
+class game
+{
+private:
+	int *arr;          //array of tic tac toe 
+	int len;          // length of array 
+	link tre;
+	link temp;
+	node * r;
+	tree t;            // tree creating for the possibilites           
+	int pos;
+public:
+	game();
+	~game();
+	void print();
+	bool win(int);
+	void set(int, int);
+	void play_game();
+	void construct_tree(int);
+	int defend(int);
+	int aggresive();
+	bool draw();
+	bool check_in_tree(int);
+	void temp_link();
+	void play_game2();
+	void construct_for_user(int);
+
+	void ok_yr(){
+		t.traverse_tree();
+	}
+	
+};
+
+bool game::check_in_tree(int x)
+{
+	Node *temp = tre.head;
+	while (temp != NULL){
+		if (temp->data == x)
+		{
+			return true;
+		}
+	}
+
+}
+bool game::draw()
+{
+	int y = 0;
+	for (int i = 0; i < 9; i++)
+	{
+		if (arr[i] == -1)
+		{
+			y++;
+		}
+	}
+	if (y == 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+void game::set(int pos, int value)
+{
+	arr[pos] = value;
+
+}
+game::game()
+{
+	arr = new int[9];
+	len = 9;
+	for (int i = 0; i < 9; i++)
+	{
+		arr[i] = -1;
+	}
+}
+
+game::~game()
+{
+}
+void game::print()
+{
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			cout << "   " << arr[i * 3 + j] << "   ";
+		}
+		cout << endl;
+	}
+}
+bool game::win(int a)
+{
+	if (arr[0] == a && arr[1] == a && arr[2] == a)
+	{
+		return true;
+	}
+	if (arr[3] == a && arr[4] == a && arr[5] == a)
+	{
+		return true;
+	}
+	if (arr[6] == a && arr[7] == a && arr[8] == a)
+	{
+		return true;
+	}
+	////////////////////////col
+	if (arr[0] == a && arr[3] == a && arr[6] == a)
+	{
+		return true;
+	}
+	if (arr[1] == a && arr[4] == a && arr[7] == a)
+	{
+		return true;
+	}
+	if (arr[2] == a && arr[5] == a && arr[8] == a)
+	{
+		return true;
+	}
+	/////////////////diagnol
+	if (arr[0] == a && arr[4] == a && arr[8] == a)
+	{
+		return true;
+	}
+	if (arr[2] == a && arr[4] == a && arr[6] == a)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void game::play_game2()
+{
+
+	do
+	{
+		if (draw() == true)
+		{
+			break;
+		}
+		else
+		{
+			int r = aggresive();
+			set(r, 1);
+			print();
+
+			if (draw() == true)
+			{
+				break;
+			}
+			if (win(1))
+			{
+				break;
+			}
+aa:
+			cout << "position" << endl;
+			cin >> pos;
+			if (arr[pos] == -1){
+				set(pos, 0);
+			}
+			else {
+				cout << "Wrong input" << endl;
+				goto aa;
+			}
+
+			if (draw() == true)
+			{
+				break;
+			}
+			if (win(0))
+			{
+				break;
+			}
+		}
+
+	} while (!win(1));
+
+	if (win(0))
+	{
+		cout << "User Wins" << endl;
+	}
+	if (win(1))
+	{
+		cout << "pc Wins" << endl;
+	}
+	if (!win(0) && !win(1))
+	{
+		cout << "Draw" << endl;
+	}
+}
+void game::play_game()
+{
+
+	do
+	{
+		if (draw() == true)
+		{
+			cout << "Match Draw" << endl;
+			break;
+		}
+		else
+		{
+			if (t.root == NULL)
+			{
+bb:
+				cout << "position" << endl;
+				cin >> pos;
+				if (arr[pos] == -1){
+					set(pos, 0);
+				}
+				else {
+					cout << "Wrong Input" << endl;
+					goto bb;
+				}
+			}
+			else
+			{
+cc:
+				cout << "position" << endl;
+				cin >> pos;
+				if (arr[pos] == -1){
+					set(pos, 0);
+					construct_for_user(pos);
+				}
+				else {
+					cout << "Wrong Input" << endl;
+					goto cc;
+				}
+
+				if (draw() == true)
+				{
+					break;
+				}
+				if (win(0))
+				{
+					break;
+				}
+
+			}
+			int r = aggresive();
+			set(r, 1);
+			print();
+			if (draw() == true)
+			{
+				break;
+			}
+			if (win(1))
+			{
+				break;
+			}
+
+		}
+	} while (!win(1));
+
+	if (win(0))
+	{
+		cout << "User Wins" << endl;
+	}
+	if (win(1))
+	{
+		cout << "pc Wins" << endl;
+	}
+	if (!win(0) && !win(1))
+	{
+		cout << "Draw" << endl;
+	}
+}
+
+void game::construct_tree(int a)
+{             // 0 human 
+
+	arr[a] = 1;
+	for (int i = 0; i < 9; i++){
+		if (arr[i] == -1){
+			tre.insert_at_tail(i);      //take all the possiblities in the tic tac toe and store in the link list 
+		}
+	}
+	int q = t.search(a);       //it will search the coming number in the tree and selects the given possiblity
+	//	t.search2(pos);
+	t.insert(tre, q);             // select the possibilty and create the all possibilities in the children 
+
+	t.copy(arr);
+
+}
+
+
+void game::construct_for_user(int a)
+{             // 0 human 
+
+	arr[a] = 0;
+	tre.deleteList();
+	for (int i = 0; i < 9; i++){
+		if (arr[i] == -1){
+			tre.insert_at_tail(i);      //take all the possiblities in the tic tac toe and store in the link list 
+		}
+	}
+	int q = t.search(a);       //it will search the coming number in the tree and selects the given possiblity
+	//	t.search2(pos);
+	t.insert(tre, q);             // select the possibilty and create the all possibilities in the children 
+	t.copy(arr);
+}
+
+
+void game::temp_link()
+{
+	for (int i = 0; i < 9; i++)
+	{
+
+
+		if (arr[i] == -1){
+			temp.insert_at_tail(i);
+		}
+	}
+}
+int game::defend(int a)
+{
+	int count = 0;        //checking the space
+	int pl = 0;
+	int le = 3;
+	int ini = 0;
+	int position = 0;
+	///// row checking for defending option 
+	//    return position in array to defend. 
+	while (le < 9)
+	{
+		for (int i = ini; i < le; i++)
+		{
+			if (arr[i] == -1)
+			{
+				count++;
+				position = i;
+			}
+			if (arr[i] == a)
+			{
+				pl++;
+			}
+		}
+		if (count == 1 && pl == 2)
+		{
+			return position;
+		}
+		else
+		{
+			ini = ini + 3;
+			le = le + 3;
+			count = 0;
+			pl = 0;
+			position = 0;
+		}
+	}
+	///// col checking for defending option 
+	//    return position in array to defend. 
+
+	ini = 0;
+	le = 6;
+	count = 0;
+	pl = 0;
+	position = 0;
+
+	while (le < 9)
+	{
+		for (int i = ini; i <= le; i = i + 3)
+		{
+			if (arr[i] == -1)
+			{
+				count++;
+				position = i;
+			}
+			if (arr[i] == a)
+			{
+				pl++;
+			}
+		}
+		if (count == 1 && pl == 2)
+		{
+			return position;
+		}
+		else
+		{
+			ini = ini++;
+			le = le++;
+			count = 0;
+			pl = 0;
+			position = 0;
+		}
+	}
+
+	///// dignol checking for defending option 
+	//    return position in array to defend. 
+
+	ini = 0;
+	le = 8;
+	count = 0;
+	pl = 0;
+	position = 0;
+
+	for (int i = ini; i <= le; i = i + 4)
+	{
+		if (arr[i] == -1)
+		{
+			count++;
+			position = i;
+		}
+		if (arr[i] == a)
+		{
+			pl++;
+		}
+	}
+	if (count == 1 && pl == 2)
+	{
+		return position;
+	}
+	// diagnol cross checking 
+	ini = 0;
+	le = 8;
+	count = 0;
+	pl = 0;
+	position = 0;
+
+	for (int i = 2; i <= 6; i = i + 2)
+	{
+		if (arr[i] == -1)
+		{
+			count++;
+			position = i;
+		}
+		if (arr[i] == a)
+		{
+			pl++;
+		}
+	}
+	if (count == 1 && pl == 2)
+	{
+		return position;
+	}
+	return -1;
+}
+
+int game::aggresive()
+{
+
+	if (defend(0) == -1)
+	{   //now pc will be in aggresive mode 
+		if (defend(1) == -1)
+		{
+			temp.deleteList();
+			temp_link();
+
+			if (t.root == NULL)
+			{
+				t.insert_null(temp);
+				tre.deleteList();
+				construct_tree(4);
+				return 4;
+			}
+
+		 //	t.insert_null(temp);
+			int l = temp.len_checker();
+		
+			
+		 if (l != 0){
+				srand((unsigned)time(0));
+				int x = rand() % l;
+
+				Node *tem = temp.head;
+
+				for (int i = 0; i < x; i++)
+				{
+					tem = tem->next;
+				}
+				tre.deleteList();
+				construct_tree(tem->data);
+				return tem->data;
+
+			}
+		}
+
+		else
+		{
+			int z = defend(1);   //go for a win 
+
+			tre.deleteList();
+			construct_tree(z);
+			//	tre.print();
+
+			return z;
+		}
+	}
+	else        //go for defend and save the game.
+	{
+		if (defend(1) != -1)
+		{
+			int z = defend(1);   //go for a win 
+
+			tre.deleteList();
+			construct_tree(z);
+			//	tre.print();
+
+			return z;
+		}
+		int a = defend(0);
+		tre.deleteList();
+		construct_tree(a);
+		//	tre.print();
+
+		return a;
+	}
+}
+
+
+int main()
+{
+
+
+	char choice = NULL;
+	int input = 0;
+	int x = 0;
+	while (choice != 'e')
+	{
+		cout << "Press 1 for Toss ." << endl;
+
+		choice = _getch();
+
+		if (choice == '1')
+		{
+			cout << "           Toss           " << endl;
+			srand((unsigned)time(0));
+			x = rand() % 2;
+			if (x == 0)
+			{
+				cout << "User Won the Toss" << endl;
+			}
+			else
+			{
+				cout << "PC Won the Toss" << endl;
+			}
+		}
+		if (x == 0)
+		{
+			game obj;
+			obj.print();
+			obj.play_game();
+		
+			
+		}
+		else
+		{
+			game obj;
+		
+			obj.play_game2();
+		
+		}
+
+	}
+	system("pause");
+}
