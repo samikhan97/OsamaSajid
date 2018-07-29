@@ -1,0 +1,10 @@
+ f=imread('coins.png');
+ figure, imshow(f);
+ title("original image")
+ colormap(gray);
+ filter=[1,1,1;1,1,1;1,1,1]*(1/9);
+ 
+ f=imfilter(f,filter);
+ figure,imagesc(abs(f));
+ title("Masked image")
+ colormap(gray);
