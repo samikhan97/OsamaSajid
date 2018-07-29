@@ -1,0 +1,36 @@
+[org 0x100]
+
+;Write a program to multiply two 32bit numbers and store the answer in a 64bit location.
+jmp start
+
+multiplier: dd 0xabcdabcd,0		
+multiplicand: dd 0,0x12224445
+result:	dd 0,0
+
+start:
+	mov cx,0							; cx holds the count
+	
+check:	
+	shr word[multiplier+2],1		; shifting multiplier to check its bit
+	rcr word[multiplier],1
+	jnc skip							; if bit is 1 then add multiplicand in result otherwise skip it
+	mov  ax,[multiplicand]				; adding multiplicand in result
+	add [result],ax
+	mov  ax,[multiplicand+2]
+	add  [result+2],ax
+	mov  ax,[multiplicand+4]
+	add  [result+4],ax
+	mov  ax,[multiplicand+6]
+	adc  [result+6],ax
+
+skip:	
+	shl word[multiplicand],1		; shifting multiplicand
+	rcl word[multiplicand+2],1
+	rcl word[multiplicand+4],1
+	rcl word[multiplicand+6],1
+	add cx,1							; increasing count
+	cmp cx,32							; keep multiplying till all 32 bits are multiplied
+	jne check
+
+mov ax,0x4c00
+int 21
