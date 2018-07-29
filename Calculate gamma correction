@@ -1,0 +1,14 @@
+A=V^?
+y=255(x/255)^?
+where x is the original pixel value
+I_c= (I_255 + 0)/2     Where  I_255  is the intensity produced by a full intensity dot of level 255.
+ The intensity of this checkerboard is then compared to a fixed gray level produce by an input 0 = g = 255.
+ Assuming a standard gamma model for the behavior of the monitor, the gray level g produces
+a perceived intensity of
+I_g= I_255 (g/255)^?
+I_g= I_c
+I_255 (g/255)^?= (I_255 + 0)/2
+I_255 (g/255)^?= I_255 /2
+?log(g/255)?^?=  log (1/2)
+?(?)log(g/255)?^= log (1/2)
+?= log (1/2)- log(g/255)
